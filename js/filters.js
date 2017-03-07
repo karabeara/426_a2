@@ -40,8 +40,17 @@ Filters.scale = function( mesh, s ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 4 lines of code.
+    var t = new THREE.Vector3(s, s, s);
+
+    var verts = mesh.getModifiableVertices();
+
+    var n_vertices = verts.length;
+    for ( var i = 0 ; i < n_vertices ; ++i ) {
+        verts[i].position.multiply(t);
+    }
+
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Scaling is not implemented yet');
+    //Gui.alertOnce ('Scaling is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
