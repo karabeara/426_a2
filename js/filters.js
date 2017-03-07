@@ -27,8 +27,34 @@ Filters.rotation = function( mesh, x, y, z ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 12 lines of code.
+    var verts = mesh.getModifiableVertices();
+
+    var n_vertices = verts.length;
+    for ( var i = 0 ; i < n_vertices ; ++i ) { //x rotation
+		var vx = verts[i].position.getComponent(0);
+		var vy = verts[i].position.getComponent(1);
+		var vz = verts[i].position.getComponent(2);
+		var t_x = new THREE.Vector3(vx, Math.cos(x)*vy-Math.sin(x)*vz, Math.sin(x)*vy+Math.cos(x)*vz);
+        verts[i].position = t_x;
+    }
+	for ( var i = 0 ; i < n_vertices ; ++i ) { //y rotation
+		var vx = verts[i].position.getComponent(0);
+		var vy = verts[i].position.getComponent(1);
+		var vz = verts[i].position.getComponent(2);
+		var t_y = new THREE.Vector3(Math.cos(y)*vx+Math.sin(y)*vz, vy, -Math.sin(y)*vx+Math.cos(y)*vz);
+        verts[i].position = t_y;
+    }
+	for ( var i = 0 ; i < n_vertices ; ++i ) { //z rotation
+		var vx = verts[i].position.getComponent(0);
+		var vy = verts[i].position.getComponent(1);
+		var vz = verts[i].position.getComponent(2);
+		var t_z = new THREE.Vector3(Math.cos(z)*vx-Math.sin(z)*vy, Math.sin(z)*vx+Math.cos(z)*vy, vz);
+        verts[i].position = t_z;
+    }
+	
+		
+	
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Rotation is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
@@ -69,6 +95,7 @@ Filters.noise = function ( mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 40 lines of code.
+
     // ----------- STUDENT CODE END ------------
     Gui.alertOnce ('Noise is not implemented yet');
 
@@ -129,8 +156,20 @@ Filters.twist = function (  mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 8 lines of code.
+
+    var verts = mesh.getModifiableVertices();
+
+    var n_vertices = verts.length;
+	for ( var i = 0 ; i < n_vertices ; ++i ) { //y rotation
+		var vx = verts[i].position.getComponent(0);
+		var vy = verts[i].position.getComponent(1);
+		var vz = verts[i].position.getComponent(2);
+		var rot = vy*factor;
+		var t_y = new THREE.Vector3(Math.cos(rot)*vx+Math.sin(rot)*vz, vy, -Math.sin(rot)*vx+Math.cos(rot)*vz);
+        verts[i].position = t_y;
+    }
+	
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Twist is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
