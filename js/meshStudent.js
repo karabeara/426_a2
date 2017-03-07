@@ -22,6 +22,13 @@ Mesh.prototype.edgesOnFace = function ( f ) {
     var halfedges = [];
 
     // ----------- STUDENT CODE BEGIN ------------
+    var he = f.halfedge;
+    var first = he;
+    while ( true ) {
+        halfedges.push( he );
+        he = he.next;
+        if ( he === first ) break;
+    }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
 
@@ -32,6 +39,13 @@ Mesh.prototype.facesOnFace = function ( f ) {
     var faces = [];
 
     // ----------- STUDENT CODE BEGIN ------------
+    var he = f.halfedge;
+    var first = he;
+    while ( true ) {
+        faces.push( he.face );
+        he = he.next;
+        if ( he === first ) break;
+    }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
 
@@ -42,6 +56,13 @@ Mesh.prototype.verticesOnVertex = function ( v ) {
     var vertices = [];
 
     // ----------- STUDENT CODE BEGIN ------------
+    var he = v.halfedge;
+    var first = he;
+    while ( true ) {
+        vertices.push( he.vertex );
+        he = he.opposite.next;
+        if ( he === first ) break;
+    }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
 
@@ -53,6 +74,13 @@ Mesh.prototype.edgesOnVertex = function ( v ) {
     var halfedges = [];
 
     // ----------- STUDENT CODE BEGIN ------------
+    var he = v.halfedge;
+    var first = he;
+    while ( true ) {
+        vertices.push( he );
+        he = he.opposite.next;
+        if ( he === first ) break;
+    }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
 
@@ -63,6 +91,13 @@ Mesh.prototype.facesOnVertex = function ( v ) {
     var faces = [];
 
     // ----------- STUDENT CODE BEGIN ------------
+    var he = v.halfedge;
+    var first = he;
+    while ( true ) {
+        faces.push( he.face );
+        he = he.opposite.next;
+        if ( he === first ) break;
+    }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
 
@@ -73,6 +108,8 @@ Mesh.prototype.verticesOnEdge = function ( e ) {
     var vertices = []
 
     // ----------- STUDENT CODE BEGIN ------------
+    faces.push( e.vertex );
+    faces.push( e.opposite.vertex );
     // ----------- Our reference solution uses 1 lines of code.
     // ----------- STUDENT CODE END ------------
 
@@ -82,6 +119,8 @@ Mesh.prototype.verticesOnEdge = function ( e ) {
 Mesh.prototype.facesOnEdge = function ( e ) {
     var faces = [];
     // ----------- STUDENT CODE BEGIN ------------
+    faces.push( e.face );
+    faces.push( e.opposite.face );
     // ----------- Our reference solution uses 1 lines of code.
     // ----------- STUDENT CODE END ------------
     return faces;
@@ -90,6 +129,22 @@ Mesh.prototype.facesOnEdge = function ( e ) {
 Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
     var out_he = undefined;
     // ----------- STUDENT CODE BEGIN ------------
+    /* 
+    var he1 = v1.halfedge;
+    var he2 = v2.halfedge;
+
+
+
+
+
+    while ( true ) {
+
+        if (he1.vertex === he2.vertex) { out_he = he1; } 
+        vertices.push( he );
+        he = he.opposite.next;
+        if ( he === first ) break;
+    }
+    */
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
     return out_he;
