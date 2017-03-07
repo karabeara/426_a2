@@ -176,8 +176,8 @@ Mesh.prototype.calculateVertexNormal = function( v ) {
 //    var v_normal = new THREE.Vector3( 0, 1, 0 );
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 7 lines of code.
-	// NEEDS TESTING!!!
-	var v_faces = Mesh.facesOnVertex(v);
+	// NEED TO NORMALIZE BY FACE
+	var v_faces = Mesh.prototype.facesOnVertex(v);
 	var v_normal = new THREE.Vector3( 0, 0, 0 );
 	for ( var i = 0; i < v_faces.length; ++i ) {
         v_normal = v_normal.add(v_faces[i].normal.normalize());
