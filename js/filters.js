@@ -113,8 +113,22 @@ Filters.smooth = function ( mesh, iter ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 39 lines of code.
+	//DOESN'T WORK YET
+	var oldMesh = new Mesh();
+	oldMesh.copy(mesh);
+;	var oldVerts =  mesh.getModifiableVertices();
+	var n_vertices = verts.length;
+    for ( var i = 0 ; i < n_vertices ; ++i ) {
+		var sum = new THREE.Vector3(oldVerts[i].x, oldVerts[i].y, oldVerts[i].z);
+		var vs = oldMesh.verticesOnVertex(oldVerts[i]);
+		for (var j = 0; j < vs.length; ++j) {
+			sum.add(vs[j].position);
+		}
+		if (oldVerts[i].position.x > 0) {
+			verts[i].position = sum.multiplyScalar(1/(vs.length+1));
+		}
+    }
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Smooth is not implemented yet');
     mesh.calculateFacesArea();
     mesh.updateNormals();
 };

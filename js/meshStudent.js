@@ -66,7 +66,7 @@ Mesh.prototype.verticesOnVertex = function ( v ) {
     var he = v.halfedge;
     var first = he;
     while ( true ) {
-        vertices.push( he.opposite.vertex );
+        vertices.push( he.vertex );
         he = he.opposite.next;
         if ( he === first ) break;
     }
