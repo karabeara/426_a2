@@ -95,9 +95,13 @@ Filters.noise = function ( mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 40 lines of code.
-
+	var n_vertices = verts.length;
+    for ( var i = 0 ; i < n_vertices ; ++i ) {
+		var avg_len = mesh.averageEdgeLength(verts[i]);
+		t = verts[i].normal.multiplyScalar(Math.random()*factor*avg_len);
+        verts[i].position.add(t);
+    }
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Noise is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
@@ -143,8 +147,13 @@ Filters.inflate = function (  mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 16 lines of code.
+	var n_vertices = verts.length;
+    for ( var i = 0 ; i < n_vertices ; ++i ) {
+		var avg_len = mesh.averageEdgeLength(verts[i]);
+		t = verts[i].normal.multiplyScalar(factor*avg_len);
+        verts[i].position.add(t);
+    }
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Inflate is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();

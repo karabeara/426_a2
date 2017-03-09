@@ -77,7 +77,7 @@ Mesh.prototype.edgesOnVertex = function ( v ) {
     var he = v.halfedge;
     var first = he;
     while ( true ) {
-        vertices.push( he );
+        halfedges.push( he );
         he = he.opposite.next;
         if ( he === first ) break;
     }
@@ -190,6 +190,19 @@ Mesh.prototype.averageEdgeLength = function ( v ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 9 lines of code.
+	var edges = this.edgesOnVertex(v);
+	var lenSum = 0;
+	for (var i = 0; i < edges.length; ++i) {
+		var v1 = new THREE.Vector3(0, 0, 0)
+		v1.copy(edges[i].vertex.position);
+		var v2 = edges[i].opposite.vertex.position;
+		v1.sub(v2);
+		var edgeLen = v1.length();
+		lenSum = lenSum + edgeLen;
+	}
+	if (edges.length != 0) {
+		avg = lenSum/edges.length;
+	}
     // ----------- STUDENT CODE END ------------
 
     return avg;
