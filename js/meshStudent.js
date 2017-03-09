@@ -5,6 +5,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Traversal
 ////////////////////////////////////////////////////////////////////////////////
+Mesh.prototype.dist = function (v1, v2) {
+	var a = new THREE.Vector3(0, 0, 0)
+	a.copy(v1);
+	a.sub(v2);
+	return a.length();
+}
+
 
 Mesh.prototype.verticesOnFace = function ( f ) {
     var vertices = [];
@@ -193,11 +200,7 @@ Mesh.prototype.averageEdgeLength = function ( v ) {
 	var edges = this.edgesOnVertex(v);
 	var lenSum = 0;
 	for (var i = 0; i < edges.length; ++i) {
-		var v1 = new THREE.Vector3(0, 0, 0)
-		v1.copy(edges[i].vertex.position);
-		var v2 = edges[i].opposite.vertex.position;
-		v1.sub(v2);
-		var edgeLen = v1.length();
+		var edgeLen = this.dist(edges[i].vertex.position, edges[i].opposite.vertex.position);
 		lenSum = lenSum + edgeLen;
 	}
 	if (edges.length != 0) {
