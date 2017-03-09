@@ -154,6 +154,22 @@ Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
 Mesh.prototype.calculateFaceArea = function ( f ) {
     var area = 0.0;
     // ----------- STUDENT CODE BEGIN ------------
+    /* 
+    var vertices = this.verticesOnFace( f );
+
+    var he = f.halfedge;
+    var first = vertices.pop( he.vertex );
+    var second = first.next
+    var vertOnF = second
+    while ( true ) {
+        vertices.push( he.vertex );
+        this.splitFaceMakeEdge ( f, v1, v2, vertOnF, true ) {
+        v1 = v2;
+        vertOnF = v2.next;
+        v2 = v2.next.next;
+        if ( v1 === first || v1 === second) break;
+    }
+    */
     // ----------- Our reference solution uses 21 lines of code.
     // ----------- STUDENT CODE END ------------
     return area;
@@ -213,6 +229,24 @@ Mesh.prototype.averageEdgeLength = function ( v ) {
 
 Mesh.prototype.triangulateFace = function ( f ) {
     // ----------- STUDENT CODE BEGIN ------------
+
+    /* 
+    var vertices = this.verticesOnFace( f );
+
+    var he = f.halfedge;
+    var first = vertices.pop( he.vertex );
+    var second = first.next
+    var vertOnF = second
+    while ( true ) {
+        vertices.push( he.vertex );
+        this.splitFaceMakeEdge ( f, v1, v2, vertOnF, true ) {
+        v1 = v2;
+        vertOnF = v2.next;
+        v2 = v2.next.next;
+        if ( v1 === first || v1 === second) break;
+    }
+
+    */
     // ----------- Our reference solution uses 8 lines of code.
     // ----------- STUDENT CODE END ------------
 };

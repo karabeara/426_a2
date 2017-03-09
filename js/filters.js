@@ -200,6 +200,12 @@ Filters.triangulate = function ( mesh ) {
     var faces = mesh.getModifiableFaces();
 
     // ----------- STUDENT CODE BEGIN ------------
+    /*
+    var n_faces = faces.length;
+    for ( var i = 0 ; i < n_faces ; i++ ) { 
+        Mesh.triangulateFace(faces[i]);
+    }
+    */
     // ----------- Our reference solution uses 4 lines of code.
     // ----------- STUDENT CODE END ------------
     Gui.alertOnce ('triangulate is not implemented yet');
