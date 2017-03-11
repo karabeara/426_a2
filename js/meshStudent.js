@@ -238,12 +238,12 @@ Mesh.prototype.triangulateFace = function ( f ) {
     var v2 = he.next.next.vertex;
     var v3 = he.next.next.next.vertex;
     while ( true ) {
+        if ( v3 === first || v2 === first || v1 === first) break;
         this.splitFaceMakeEdge ( f, first, v2, second, true )
         he = he.next;
         var v1 = he.vertex;
         var v2 = he.next.vertex;
         var v3 = he.next.next.vertex;
-        if ( v3 === first || v2 === first || v1 === first) break;
     }
     // ----------- Our reference solution uses 8 lines of code.
     // ----------- STUDENT CODE END ------------
