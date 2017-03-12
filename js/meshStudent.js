@@ -168,6 +168,7 @@ Mesh.prototype.calculateFaceArea = function ( f ) {
         var c = this.dist(v1.position, v3.position);
         var s = 0.5 * (a + b + c);
         var newArea = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+		area = area + newArea;
         he = he.next;
         var v1 = he.vertex;
         var v2 = he.next.vertex;
@@ -198,7 +199,9 @@ Mesh.prototype.calculateVertexNormal = function( v ) {
 	var v_faces = Mesh.prototype.facesOnVertex(v);
 	var v_normal = new THREE.Vector3( 0, 0, 0 );
 	for ( var i = 0; i < v_faces.length; ++i ) {
-        v_normal = v_normal.add(v_faces[i].normal*Mesh.prototype.calculateFaceArea(v_faces[i]));
+		var temp = new THREE.Vector3(v_faces[i].normal.x, v_faces[i].normal.y, v_faces[i].normal.z);
+		temp.multiplyScalar(Mesh.prototype.calculateFaceArea(v_faces[i]));
+        v_normal.add(temp);;
     }
 	v_normal = v_normal.normalize();
 	
