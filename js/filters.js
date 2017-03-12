@@ -113,25 +113,27 @@ Filters.smooth = function ( mesh, iter ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 39 lines of code.
-	//DOESN'T WORK YET
-	var oldMesh = new Mesh();
-	oldMesh.copy(mesh);
-	var oldVerts =  mesh.getModifiableVertices();
-	var n_vertices = verts.length;
-    for ( var i = 0 ; i < n_vertices ; ++i ) {
-		var sigma = oldMesh.averageEdgeLength(oldVerts[i]);
-		
-		var sum = new THREE.Vector3(oldVerts[i].position.x, oldVerts[i].position.y, oldVerts[i].position.z);
-		var weight_sum = 1;
-		var vs = oldMesh.verticesOnVertex(oldVerts[i]);
-		for (var j = 0; j < vs.length; ++j) {
-			var l = oldMesh.dist(vs[j].position, oldVerts[i].position)
-			var w = Math.exp(-l*l/(2*sigma*sigma));
-			weight_sum = weight_sum + 1;
-			sum.add(vs[j].position.multiplyScalar(1));
+	for (var it = 0; it < iter; ++it) {
+		var oldMesh = new Mesh();
+		oldMesh.copy(mesh);
+		var oldVerts =  mesh.getModifiableVertices();
+		var n_vertices = verts.length;
+		for ( var i = 0 ; i < n_vertices ; ++i ) {
+			var sigma = oldMesh.averageEdgeLength(oldVerts[i]);
+			var sum = new THREE.Vector3(oldVerts[i].position.x, oldVerts[i].position.y, oldVerts[i].position.z);
+			var weight_sum = 1;
+			var vs = oldMesh.verticesOnVertex(oldVerts[i]);
+			for (var j = 0; j < vs.length; ++j) {
+				var l = oldMesh.dist(vs[j].position, oldVerts[i].position)
+				var w = Math.exp(-l*l/(2*sigma*sigma));
+				weight_sum = weight_sum + w;
+				var temp = new THREE.Vector3(vs[j].position.x, vs[j].position.y, vs[j].position.z);
+				temp.multiplyScalar(w);
+				sum.add(temp);
+			}
+			verts[i].position = sum.divideScalar(weight_sum);
 		}
-		verts[i].position = sum.divideScalar(weight_sum);
-    }
+	}
     // ----------- STUDENT CODE END ------------
     mesh.calculateFacesArea();
     mesh.updateNormals();
