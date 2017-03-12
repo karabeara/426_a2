@@ -144,9 +144,18 @@ Filters.sharpen = function ( mesh, iter ) {
     var verts = mesh.getModifiableVertices();
 
     // ----------- STUDENT CODE BEGIN ------------
-    // ----------- Our reference solution uses 40 lines of code.
+    // ----------- Our reference solution uses 40 lines of code
+	var smoothMesh = new Mesh();
+	smoothMesh.copy(mesh);
+	Filters.smooth(smoothMesh, iter);
+	var smoothVerts = smoothMesh.getModifiableVertices();
+	
+	var n_vertices = verts.length;
+	for ( var i = 0 ; i < n_vertices ; ++i ) {
+		var diff = (new THREE.Vector3(verts[i].position.x, verts[i].position.y, verts[i].position.z)).sub(smoothVerts[i].position);
+		verts[i].position.add(diff);
+	}
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Sharpen is not implemented yet');
     mesh.calculateFacesArea();
     mesh.updateNormals();
 };
