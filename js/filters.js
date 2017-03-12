@@ -347,12 +347,57 @@ Filters.truncate = function ( mesh, factor ) {
     var verts = mesh.getModifiableVertices();
 
     // ----------- STUDENT CODE BEGIN ------------
-    for (var i = 0; i < verts.length; i++) {
+    // Need to add two new vertices, and a single new face
+    // Store respective 
+    var orig_vert_len  = verts.length
+    var index = orig_vert_len
+    //for (var i = 0; i < orig_vert_len; i++) {
+    i = 0
+        var v1 = verts[i]
+        var v2 = mesh.addVertex(v1.position)
+        var v3 = mesh.addVertex(v1.position)
 
+        var f = mesh.addFace()
+        console.log(v1)
+        console.log(v2)
+        console.log(v3)
+        console.log(f)
+
+
+
+/*
+        // add (n-1) vertices per vertex
+        var edges = mesh.edgesOnVertex(v1)
+        for (var j = 0; j < edges.length; j++) {
+            var v2 = mesh.addVertex(v1.position)
+            verts[index++] = v2
+        }
+        // add 1 face per vertex
+        var f = mesh.addFace()
+        f.normal = v1.normal
+        f.halfedge = v1.halfedge
+*/
+    //}
+
+    // Move Vertices along halfedges
+    // Store respective offset vectors per vertex beforehand
+    /*
+    for (var i = 0; i < orig_vert_len; i++) {
+        
+        var v1 = verts[i]
+        // add (n-1) vertices per vertex
+        var edges = mesh.edgesOnVertex(v1)
+        for (var j = 0; j < edges.length; j++) {
+            var v2 = mesh.addVertex(v1.position)
+            verts[index++] = v2
+        }
+        // add 1 face per vertex
+        var f = mesh.addFace()
     }
+    */
     // ----------- Our reference solution uses 54 lines of code.
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Truncate is not implemented yet');
+    //Gui.alertOnce ('Truncate is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
@@ -409,13 +454,13 @@ Filters.triSubdiv = function ( mesh, levels ) {
                 index_vert += 1;
             }
         }
-
-        var orig_edge_len = halfedges.length
-        var orig_vert_len = vertices.length
+        console.log("hello")
+        var orig_edge_len = all_halfedges.length
+        var orig_vert_len = all_vertices.length
         var old_index = 0
 
         // Split halfedges in half as well as their opposites
-        for ( var i = 0; i < 2; i++ ) {
+        for ( var i = 0; i < orig_edge_len; i++ ) {
 
             curr_halfedges = []
             
@@ -429,9 +474,15 @@ Filters.triSubdiv = function ( mesh, levels ) {
             var v1 = curr_halfedges[0].vertex
             var v2 = curr_halfedges[1].vertex
             var v3 = curr_halfedges[2].vertex
+            console.log(v1)
+            console.log(v2)
+            console.log(v3)
             var v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5)
             var v5 = mesh.splitEdgeMakeVert(v1, v3, 0.5)
             var v6 = mesh.splitEdgeMakeVert(v2, v3, 0.5)
+            console.log(v4)
+            console.log(v5)
+            console.log(v6)
 
             // All new will be added to the end of the array
             all_vertices[old_index++] = v4
@@ -452,7 +503,7 @@ Filters.triSubdiv = function ( mesh, levels ) {
             var f1 = mesh.splitFaceMakeEdge()
         }
 */
-        //mesh = mesh.buildFromVerticesAndFaces(all_vertices, faces);
+        mesh = mesh.buildFromVerticesAndFaces(all_vertices, faces);
         // ----------- Our reference solution uses 42 lines of code.
         // ----------- STUDENT CODE END ------------
         //Gui.alertOnce ('Triangle subdivide is not implemented yet');
