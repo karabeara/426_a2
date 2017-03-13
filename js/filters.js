@@ -179,8 +179,9 @@ Filters.inflate = function (  mesh, factor ) {
 	var n_vertices = verts.length;
     for ( var i = 0 ; i < n_vertices ; ++i ) {
 		var avg_len = mesh.averageEdgeLength(verts[i]);
-		t = verts[i].normal.multiplyScalar(factor*avg_len);
-        verts[i].position.add(t);
+		var temp = new THREE.Vector3(verts[i].normal.x, verts[i].normal.y, verts[i].normal.z)
+		temp.multiplyScalar(factor*avg_len);
+        verts[i].position.add(temp);
     }
     // ----------- STUDENT CODE END ------------
 

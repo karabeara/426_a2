@@ -84,7 +84,7 @@ Mesh.prototype.edgesOnVertex = function ( v ) {
     var first = he;
     while ( true ) {
         halfedges.push( he );
-        he = he.next.opposite;
+        he = he.opposite.next;
         if ( he === first ) break;
     }
     // ----------- Our reference solution uses 7 lines of code.
