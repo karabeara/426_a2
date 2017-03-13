@@ -573,9 +573,72 @@ Filters.quadSubdiv = function ( mesh, levels ) {
     for ( var l = 0 ; l < levels ; l++ ) {
         var faces = mesh.getModifiableFaces();
         // ----------- STUDENT CODE BEGIN ------------
+        var n_faces = faces.length
+
+        // Create list of half edges
+        var old_verts = [];
+        var old_vert_nums = [];
+        var midpoints = [];
+        var i_vert = 0;
+
+        for ( var i = 0; i < n_faces; i++ ) {
+            var old_i_vert = i_vert;
+            var vertices = mesh.verticesOnFace( faces[i] )
+            for ( var j = 0; j < vertices.length; ++j ) { old_verts[i_vert] = vertices[j]; i_vert += 1; }
+            old_vert_nums[i] = i_vert - old_i_vert;
+        }
+
+        var i_old = 0
+        i_mid = 0; 
+        for ( var i = 0; i < n_faces; i ++) {
+            var verts = []
+            
+            for ( var j = 0; j < old_vert_nums[i]; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
+
+            for ( var k = 0; k < old_vert_nums[i]; k++) {
+                var v1 = verts[ (k) % old_vert_nums[i] ]
+                var v2 = verts[ (k+1) % old_vert_nums[i] ]
+                midpoints[i_mid++] = mesh.splitEdgeMakeVert( v1, v2, 0.5); 
+            }
+        }
+
+        var i_old = 0
+        var i_center = 0
+        var centers = [];
+
+        for ( var i = 0; i < n_faces; i ++) {
+            var verts = []
+            
+            for ( var j = 0; j < old_vert_nums[i]; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
+
+            var v1 = verts[0]
+            var v2 = verts[1]
+            var v3 = verts[2]
+            var v5 = verts[3]
+            var v6 = verts[4]
+            
+            var f  = mesh.splitFaceMakeEdge(faces[i], v1, v3, v2, true)
+            var v4 = mesh.splitEdgeMakeVert(v1, v3, 0.5); 
+            //var f2  = mesh.splitFaceMakeEdge(faces[i], v5, v4, v6, true)
+            centers[i_center++] = v4;
+
+            // var v5 = verts[3]
+            // var v6 = verts[4]
+            // var f2  = mesh.splitFaceMakeEdge(f, v3, v6, v5, true)
+
+            for ( var k = old_vert_nums[i] - 1; k >= 3; k--) {
+                //k = old_vert_nums[i] - 1;
+                var v_new = verts[k]
+                var v_other = verts[ (k+1) % old_vert_nums[i] ]
+                //console.log(k)
+                //console.log((k+1) % old_vert_nums[i])
+                f = mesh.splitFaceMakeEdge(faces[i], v_new, v4, v_other, true); 
+            }
+        }
+
         // ----------- Our reference solution uses 53 lines of code.
         // ----------- STUDENT CODE END ------------
-        Gui.alertOnce ('Quad subdivide is not implemented yet');        
+        //Gui.alertOnce ('Quad subdivide is not implemented yet');        
     }
 
     mesh.calculateFacesArea();
