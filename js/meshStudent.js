@@ -134,19 +134,22 @@ Mesh.prototype.facesOnEdge = function ( e ) {
 Mesh.prototype.vertBetweenVertices = function ( v1, v2 ) {
     var v3 = undefined;
     var vertices_1 = this.verticesOnVertex(v1)
+    //console.log(vertices_1)
     var vertices_2 = this.verticesOnVertex(v2)
+    //console.log(vertices_2)
     var index_1 = 0;
     var index_2 = 0;
     var vv1 = vertices_1[0]
     var vv2 = vertices_2[0]
     while ( true ) {
-        if (vv1 === vv2) { v3 = vv1; break; }
+        if (vv1 === vv2) { v3 = vv1; }
         vv1 = vertices_1[index_1]
         vv2 = vertices_2[index_2]
         index_1 += 1
-        if (index_1 > vertices_1.length - 1 ) { index_1 = 0; index_2 += 1}
-        if (index_2 > vertices_2.length - 1 ) break;
+        if (index_1 > vertices_1.length ) { index_1 = 0; index_2 += 1}
+        if (index_2 > vertices_2.length ) break;
     }
+    //console.log(v3) 
     return v3;
 };
 
@@ -160,9 +163,9 @@ Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
     var first = he;
     while ( true ) {
         if (he.vertex === v2) { out_he = he }
-        index += 1
         he = edges[index]
-        if (index > edges.length - 1 ) break;
+        index += 1
+        if (index > edges.length ) break;
     }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------

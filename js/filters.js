@@ -474,29 +474,18 @@ Filters.triSubdiv = function ( mesh, levels ) {
         var faces = mesh.getModifiableFaces();
         // ----------- STUDENT CODE BEGIN ------------
         var n_faces = faces.length
+        console.log(n_faces)
         // Copy initial mesh
         var oldMesh = new Mesh();
         oldMesh.copy(mesh);
 
         // Create list of half edges
-        var old_halfedges = [];
         var old_verts = [];
-        var i_edge = 0;
         var i_vert = 0;
+
         for ( var i = 0; i < n_faces; i++ ) {
-
-            var halfedges = oldMesh.edgesOnFace( faces[i] )
-            var vertices = oldMesh.verticesOnFace( faces[i] )
-            
-            for ( var j = 0; j < 3; ++j ) {
-                old_halfedges[i_edge] = halfedges[j];
-                i_edge += 1;
-            }
-
-            for ( var j = 0; j < 3; ++j ) {
-                old_verts[i_vert] = vertices[j];
-                i_vert += 1;
-            }
+            var vertices = mesh.verticesOnFace( faces[i] )
+            for ( var j = 0; j < 3; ++j ) { old_verts[i_vert] = vertices[j]; i_vert += 1; }
         }
 
         var i_old = 0
@@ -506,10 +495,7 @@ Filters.triSubdiv = function ( mesh, levels ) {
         for ( var i = 0; i < n_faces; i ++) {
             var verts = []
             
-            for ( var j = 0; j < 3; j++ ) {
-                verts[j] = old_verts[i_old]
-                i_old += 1
-            }
+            for ( var j = 0; j < 3; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
 
             var v1 = verts[0]
             var v2 = verts[1]
@@ -519,22 +505,44 @@ Filters.triSubdiv = function ( mesh, levels ) {
             // Still a bug in determining the already calculated vertex!!!!!!!
             var v4, v5, v6;
             var he1 = mesh.edgeBetweenVertices( v1, v2 );
-            if (!he1) { v4 = mesh.vertBetweenVertices (v1,v2) } else { v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
+            if (!he1) { } else { v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
             var he2 = mesh.edgeBetweenVertices( v1, v3 );
-            if (!he2) { v5 = mesh.vertBetweenVertices (v1,v3) } else { v5 = mesh.splitEdgeMakeVert(v1, v3, 0.5) }
+            if (!he2) { } else { v5 = mesh.splitEdgeMakeVert(v1, v3, 0.5) }
             var he3 = mesh.edgeBetweenVertices( v2, v3 );
-            if (!he3) { v6 = mesh.vertBetweenVertices (v2,v3) } else { v6 = mesh.splitEdgeMakeVert(v2, v3, 0.5) }
+            if (!he3) { } else { v6 = mesh.splitEdgeMakeVert(v2, v3, 0.5) }
+
+            if (!he1) { v4 = mesh.vertBetweenVertices (v1,v2) } 
+            if (!he2) { v5 = mesh.vertBetweenVertices (v1,v3) } 
+            if (!he3) { v6 = mesh.vertBetweenVertices (v2,v3) } 
+
+            new_verts[i_new++] = v4;
+            new_verts[i_new++] = v5;
+            new_verts[i_new++] = v6;   
+        }
+
+        var v_i = 0;
+
+        for ( var i = 0; i < n_faces; i ++) {
+            var verts = []
+            
+            for ( var j = 0; j < 3; j++ ) { verts[j] = new_verts[v_i]; v_i += 1 }
+
+            var v4 = verts[0]
+            var v5 = verts[1]
+            var v6 = verts[2]
 
             // Join new vertices around a face
-            var f1 = mesh.splitFaceMakeEdge(faces[i], v4, v5, v6, true)
-            var f2 = mesh.splitFaceMakeEdge(f1, v4, v6, v5, true)
-            var f3 = mesh.splitFaceMakeEdge(f2, v5, v6, v4, true)
-
-            // All new will be added to the end of the array
-            new_verts[i_new++] = v4
-            new_verts[i_new++] = v5
-            new_verts[i_new++] = v6
-            
+            // BUG WHEN VERTICES ARE ALREADY CALCULATED
+            if (i != 9) {
+                var f1 = mesh.splitFaceMakeEdge(faces[i], v4, v5, v6, true)
+                //faces[i].halfedge = v4.halfedge.opposite
+                var f2 = mesh.splitFaceMakeEdge(f1, v4, v6, v5, true)
+                var f3 = mesh.splitFaceMakeEdge(f2, v5, v6, v4, true) 
+            } else {
+                //f1 = "hello"
+                //f1 = mesh.splitFaceMakeEdge(faces[i], v4, v5, v6, true)
+                //var f3 = mesh.splitFaceMakeEdge(f2, v4, v6, v5, true) 
+            }
         }
         // ----------- Our reference solution uses 42 lines of code.
         // ----------- STUDENT CODE END ------------
