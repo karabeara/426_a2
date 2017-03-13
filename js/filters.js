@@ -336,8 +336,43 @@ Filters.extrude = function ( mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 32 lines of code.
-    // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Extrude is not implemented yet');
+	var n_faces = faces.length;
+	for ( var i = 0 ; i < n_faces ; ++i ) {
+		
+		var old_verts = mesh.verticesOnFace(faces[i]);
+		var old_edges = []
+		var new_verts = []
+		for (var v_i = 0; v_i < old_verts.length; v_i++) { //make new verts
+			new_verts[v_i] = mesh.splitEdgeMakeVert(old_verts[v_i], old_verts[(v_i+1)%old_verts.length], 0);
+			old_edges[v_i] = mesh.edgeBetweenVertices(new_verts[v_i], old_verts[(v_i+1)%old_verts.length]);
+		}
+		for (var v_i = 0; v_i < old_verts.length; v_i++) { //split other faces once
+			faces_i = mesh.facesOnVertex(old_verts[v_i]);
+			faces_i_1 = mesh.facesOnVertex(old_verts[(v_i+1)%old_verts.length]);
+			var common_face = undefined;
+			for (var f_i = 0; f_i < faces_i.length; f_i++) {
+				if (faces_i[f_i] !== faces[i]) {
+					for (var f_j = 0; f_j < faces_i_1.length; f_j++) {
+						if (faces_i[f_i] === faces_i_1[f_j])
+							common_face = faces_i[f_i];
+					}
+				}
+			}
+			mesh.splitFaceMakeEdge(common_face, old_verts[v_i], old_verts[(v_i+1)%old_verts.length], new_verts[v_i], false); //wrong face to split?
+		}
+		for (var v_i = 0; v_i < new_verts.length; v_i++) { //split new face
+			mesh.splitFaceMakeEdge(faces[i], new_verts[v_i], new_verts[(v_i+1)%new_verts.length], new_verts[(v_i+2)%new_verts.length], false);
+		}
+		for (var v_i = 0; v_i < new_verts.length; v_i++) { //join faces
+			mesh.joinFaceKillEdgeSimple(old_edges[v_i]);
+		}
+		for (var v_i = 0; v_i < new_verts.length; v_i++) {
+			var dir = new THREE.Vector3(faces[i].normal.x, faces[i].normal.y, faces[i].normal.z);
+			new_verts[v_i].position.add(dir.multiplyScalar(factor));
+		}
+	}
+	
+    // ----------- STUDENT CODE END -----------
 
     mesh.calculateFacesArea();
     mesh.updateNormals();

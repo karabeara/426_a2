@@ -140,7 +140,7 @@ Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
     var he = edges[edges_index];
     var first = he;
     while ( true ) {
-        if (he.opposite.vertex === v2) { out_he = he.opposite }
+        if (he.vertex === v2) {	out_he = he;}
         edges_index += 1;
         he = edges[edges_index];
         if ( edges_index > edges.length - 1 ) break;
