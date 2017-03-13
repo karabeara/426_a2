@@ -101,7 +101,7 @@ Mesh.prototype.facesOnVertex = function ( v ) {
     var first = he;
     while ( true ) {
         faces.push( he.face );
-        he = he.next.opposite;
+        he = he.opposite.next;
         if ( he === first ) break;
     }
     // ----------- Our reference solution uses 7 lines of code.
