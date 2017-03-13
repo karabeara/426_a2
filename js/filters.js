@@ -228,7 +228,6 @@ Filters.wacky = function ( mesh, factor ) {
 Filters.triangulate = function ( mesh ) {
 
     var faces = mesh.getModifiableFaces();
-
     // ----------- STUDENT CODE BEGIN ------------
     var n_faces = faces.length;
     for ( var i = 0 ; i < n_faces ; i++ ) { 
@@ -465,65 +464,68 @@ Filters.splitLong = function ( mesh, factor  ) {
 
 Filters.triSubdiv = function ( mesh, levels ) {
     Filters.triangulate( mesh );
-
     for ( var l = 0 ; l < levels ; l++ ) {
         var faces = mesh.getModifiableFaces();
         // ----------- STUDENT CODE BEGIN ------------
-        // DOESN'T WORK YET
+        // Copy initial mesh
+        var oldMesh = new Mesh();
+        oldMesh.copy(mesh);
+
         // Create list of half edges
-        var all_halfedges = [];
-        var all_vertices = [];
-        var index_edge = 0
-        var index_vert = 0
+        var old_halfedges = [];
+        var old_vertices = oldMesh.getModifiableVertices();
+        var new_halfedges = [];
+        var new_vertices = [];
+        var i_edge = 0
       
         for ( var i = 0; i < faces.length; i++ ) {
-            
-            var halfedges = mesh.edgesOnFace( faces[i] )
-            var vertices = mesh.verticesOnFace( faces[i] )
-            
+            var halfedges = oldMesh.edgesOnFace( faces[i] )
             for ( var j = 0; j < halfedges.length; ++j ) {
-                all_halfedges[index_edge] = halfedges[j]
-                index_edge += 1;
-            }
-            for ( var k = 0; k < vertices.length; ++k ) {
-                all_vertices[index_vert] = vertices[k]
-                index_vert += 1;
+                old_halfedges[i_edge] = halfedges[j]
+                i_edge += 1;
             }
         }
-        console.log("hello")
-        var orig_edge_len = all_halfedges.length
-        var orig_vert_len = all_vertices.length
-        var old_index = 0
+
+        var original_edge_length = all_halfedges.length
+        var original_vert_length = all_vertices.length
+        var i_old = 0
+        var i_new = 0
 
         // Split halfedges in half as well as their opposites
-        for ( var i = 0; i < orig_edge_len; i++ ) {
+        for ( var i = 0; i < faces.length; i ++) {
 
-            curr_halfedges = []
+            var halfedges = oldMesh.edgesOnFace( faces[i] )
+            var vertices = oldMesh.verticesOnFace( faces[i] )
             
-            for ( var j = 0; j < 3; j++ ) {
-                curr_halfedges[j] = all_halfedges[old_index]
-                old_index += 1
-            }
-
-            var edge = halfedges[i]
-            console.log(edge)
-            var v1 = curr_halfedges[0].vertex
-            var v2 = curr_halfedges[1].vertex
-            var v3 = curr_halfedges[2].vertex
+            // for ( var j = 0; j < 3; j++ ) {
+            //     curr_halfedges[j] = all_halfedges[i_old]
+            //     i_old += 1
+            // }
+            var v1 = halfedges[0].vertex
+            var v2 = halfedges[1].vertex
+            var v3 = halfedges[2].vertex
             console.log(v1)
             console.log(v2)
             console.log(v3)
-            var v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5)
-            var v5 = mesh.splitEdgeMakeVert(v1, v3, 0.5)
-            var v6 = mesh.splitEdgeMakeVert(v2, v3, 0.5)
+            var v4, v5, v6;
+            var he1 = mesh.edgeBetweenVertices( v1, v2 );
+            if (he1) { v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
+            var he2 = mesh.edgeBetweenVertices( v1, v3 );
+            if (he2) { v5 = mesh.splitEdgeMakeVert(v1, v3, 0.5) }
+            var he3 = mesh.edgeBetweenVertices( v2, v3 );
+            if (he3) { v6 = mesh.splitEdgeMakeVert(v2, v3, 0.5) }
             console.log(v4)
             console.log(v5)
             console.log(v6)
 
+            // var f1 = mesh.splitFaceMakeEdge(faces[i], v4, v5, v6, true)
+            // var f2 = mesh.splitFaceMakeEdge(f1, v4, v6, v5, true)
+            // var f3 = mesh.splitFaceMakeEdge(f2, v5, v6, v4, true)
+
             // All new will be added to the end of the array
-            all_vertices[old_index++] = v4
-            all_vertices[old_index++] = v5
-            all_vertices[old_index++] = v6
+            // new_vertices[i_new++] = v4
+            // new_vertices[i_new++] = v5
+            // new_vertices[i_new++] = v6
             
         }
 /*
@@ -539,7 +541,7 @@ Filters.triSubdiv = function ( mesh, levels ) {
             var f1 = mesh.splitFaceMakeEdge()
         }
 */
-        mesh = mesh.buildFromVerticesAndFaces(all_vertices, faces);
+        //mesh = mesh.buildFromVerticesAndFaces(all_vertices, faces);
         // ----------- Our reference solution uses 42 lines of code.
         // ----------- STUDENT CODE END ------------
         //Gui.alertOnce ('Triangle subdivide is not implemented yet');
