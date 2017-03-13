@@ -465,10 +465,57 @@ Filters.bevel = function ( mesh, factor ) {
 
 Filters.splitLong = function ( mesh, factor  ) {
 
+	var init_faces = mesh.getModifiableFaces();
+	var init_edges = [];
+	for (var f_i = 0; f_i < init_faces.length; f_i++) {
+		var f_edges = mesh.edgesOnFace(init_faces[f_i]);
+		for (var e_i = 0; e_i < f_edges.length; e_i++) {
+			if(init_edges.indexOf(f_edges[e_i]) == -1) 
+				init_edges.push(f_edges[e_i]);
+		}
+	}
+
+
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 35 lines of code.
+	for (var iter = 0; iter < (factor*init_edges.length); iter++) {
+		var faces = mesh.getModifiableFaces();
+		var edges = [];
+		for (var f_i = 0; f_i < faces.length; f_i++) {
+			var f_edges = mesh.edgesOnFace(faces[f_i]);
+			for (var e_i = 0; e_i < f_edges.length; e_i++) {
+				if(edges.indexOf(f_edges[e_i]) == -1) 
+					edges.push(f_edges[e_i]);
+			}
+		}
+		
+		var longDist = 0;
+		var longEdge = undefined;
+		for (var e_i = 0; e_i < edges.length; e_i++) {
+			var v1 = edges[e_i].vertex;
+			var v2 = edges[e_i].opposite.vertex;
+			var d = mesh.dist(v1.position, v2.position);
+			if (d > longDist) {
+				longDist = d;
+				longEdge = edges[e_i];
+			}
+		}
+		
+		var vs = mesh.verticesOnFace(longEdge.face);
+		var count = 0;
+		var v = vs[count];
+		while (true) {
+			if (v !== longEdge.vertex && v !== longEdge.opposite.vertex)
+				break;
+			count++;
+			v = vs[count];
+		}
+		
+		var newVert = mesh.splitEdgeMakeVert(longEdge.vertex, longEdge.opposite.vertex, 0.5);
+		mesh.splitFaceMakeEdge(longEdge.face, newVert, v);
+	}
+	
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Split Long Edges is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
