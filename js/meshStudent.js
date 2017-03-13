@@ -65,7 +65,7 @@ Mesh.prototype.verticesOnVertex = function ( v ) {
     var he = v.halfedge;
     var first = he;
     while ( true ) {
-        vertices.push( he.opposite.vertex );
+        vertices.push( he.vertex );
         he = he.opposite.next;
         if ( he === first ) break;
     }
@@ -131,15 +131,35 @@ Mesh.prototype.facesOnEdge = function ( e ) {
     return faces;
 };
 
+Mesh.prototype.vertBetweenVertices = function ( v1, v2 ) {
+    var v3 = undefined;
+    var vertices_1 = this.verticesOnVertex(v1)
+    var vertices_2 = this.verticesOnVertex(v2)
+    var index_1 = 0;
+    var index_2 = 0;
+    var vv1 = vertices_1[0]
+    var vv2 = vertices_2[0]
+    while ( true ) {
+        if (vv1 === vv2) { v3 = vv1; break; }
+        vv1 = vertices_1[index_1]
+        vv2 = vertices_2[index_2]
+        index_1 += 1
+        if (index_1 > vertices_1.length - 1 ) { index_1 = 0; index_2 += 1}
+        if (index_2 > vertices_2.length - 1 ) break;
+    }
+    return v3;
+};
+
 Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
     var out_he = undefined;
     // ----------- STUDENT CODE BEGIN ------------
     edges = this.edgesOnVertex(v1)
+    //console.log(edges)
     var index = 0;
     var he = edges[index]
     var first = he;
     while ( true ) {
-        if (he.opposite.vertex === v2) { out_he = he }
+        if (he.vertex === v2) { out_he = he }
         index += 1
         he = edges[index]
         if (index > edges.length - 1 ) break;
