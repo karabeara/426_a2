@@ -65,7 +65,7 @@ Mesh.prototype.verticesOnVertex = function ( v ) {
     var he = v.halfedge;
     var first = he;
     while ( true ) {
-        vertices.push( he.vertex );
+        vertices.push( he.opposite.vertex );
         he = he.opposite.next;
         if ( he === first ) break;
     }
@@ -78,7 +78,6 @@ Mesh.prototype.verticesOnVertex = function ( v ) {
 // you want to return the edges that point away from v
 Mesh.prototype.edgesOnVertex = function ( v ) {
     var halfedges = [];
-
     // ----------- STUDENT CODE BEGIN ------------
     var he = v.halfedge;
     var first = he;
@@ -135,15 +134,15 @@ Mesh.prototype.facesOnEdge = function ( e ) {
 Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
     var out_he = undefined;
     // ----------- STUDENT CODE BEGIN ------------
-    var edges = this.edgesOnVertex(v1)
-    var edges_index = 0;
-    var he = edges[edges_index];
+    edges = this.edgesOnVertex(v1)
+    var index = 0;
+    var he = edges[index]
     var first = he;
     while ( true ) {
-        if (he.vertex === v2) {	out_he = he;}
-        edges_index += 1;
-        he = edges[edges_index];
-        if ( edges_index > edges.length - 1 ) break;
+        if (he.opposite.vertex === v2) { out_he = he }
+        index += 1
+        he = edges[index]
+        if (index > edges.length - 1 ) break;
     }
     // ----------- Our reference solution uses 7 lines of code.
     // ----------- STUDENT CODE END ------------
@@ -236,12 +235,6 @@ Mesh.prototype.averageEdgeLength = function ( v ) {
 
 Mesh.prototype.triangulateFace = function ( f ) {
     // ----------- STUDENT CODE BEGIN ------------
-    /*
-    console.log(f.halfedge.vertex) 
-    console.log(f.halfedge.opposite.vertex)
-    edge = this.edgeBetweenVertices(f.halfedge.vertex, f.halfedge.opposite.vertex)
-    console.log(edge)
-    */
     var he = f.halfedge;
     var first = he.vertex;
     var second = he.next.vertex;
