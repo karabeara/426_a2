@@ -382,46 +382,47 @@ Filters.truncate = function ( mesh, factor ) {
     var verts = mesh.getModifiableVertices();
 
     // ----------- STUDENT CODE BEGIN ------------
-    // Need to add two new vertices, and a single new face
-    // Store respective 
     var n_verts  = verts.length
-    //for (var i = 0; i < n_verts; i++) {
-    i = 0
-        var old_edges = mesh.edgesOnVertex(vert[i])
-        var new_verts = []
-        var new_edges = []
 
-        for (var j = 0; j < old_edges.length - 1; j++) {  // make new verts
-            new_verts[j] = mesh.splitEdgeMakeVert(verts[i], verts[i], 0);
-        }
-        var v1 = verts[i]
-        var v2 = mesh.addVertex(v1.position)
-        var v3 = mesh.addVertex(v1.position)
+    // Copy initial mesh
+    var oldMesh = new Mesh();
+    oldMesh.copy(mesh);
 
-        var f = mesh.addFace()
-        console.log(v1)
-        console.log(v2)
-        console.log(v3)
-        console.log(f)
-
-
-
-/*
+    // Need to add two new vertices, and a single new face
+    for (var i = 0; i < n_verts; i++) {
         // add (n-1) vertices per vertex
-        var edges = mesh.edgesOnVertex(v1)
-        for (var j = 0; j < edges.length; j++) {
-            var v2 = mesh.addVertex(v1.position)
-            verts[index++] = v2
+        // var old_verts = mesh.verticesOnVertex(verts[i]);
+        // console.log(old_verts)
+        // var old_edges = []
+        // var new_verts = []
+        // for (var v_i = 0; v_i < old_verts.length; v_i++) { //make new verts
+        //     new_verts[v_i] = mesh.splitEdgeMakeVert(old_verts[v_i], old_verts[(v_i+1) % old_verts.length], 0);
+        //     console.log(old_verts[v_i])
+        //     console.log(old_verts[(v_i+1) % old_verts.length])
+        //     console.log(new_verts[v_i])
+        //     //old_edges[v_i] = mesh.edgeBetweenVertices(new_verts[v_i], old_verts[(v_i+1) % old_verts.length]);
+        // }
+
+
+        var old_verts = mesh.verticesOnVertex(verts[i])
+        var new_verts = []
+        var old_edges = []
+
+        for (var j = 0; j < old_verts.length - 1; j++) {
+            new_verts[j] = mesh.splitEdgeMakeVert(verts[i], old_verts[j], 0);
+            old_edges[j] = oldMesh.edgeBetweenVertices(new_verts[j], old_verts[(j+1) % old_verts.length]);
+            console.log(new_verts[j])
         }
+
         // add 1 face per vertex
-        var f = mesh.addFace()
-        f.normal = v1.normal
-        f.halfedge = v1.halfedge
-*/
-    //}
+        //var f = mesh.addFace()
+    }
 
     // Move Vertices along halfedges
     // Store respective offset vectors per vertex beforehand
+
+
+    // Move Vertices along halfedges
     /*
     for (var i = 0; i < orig_vert_len; i++) {
         
@@ -474,7 +475,6 @@ Filters.triSubdiv = function ( mesh, levels ) {
         var faces = mesh.getModifiableFaces();
         // ----------- STUDENT CODE BEGIN ------------
         var n_faces = faces.length
-        console.log(n_faces)
         // Copy initial mesh
         var oldMesh = new Mesh();
         oldMesh.copy(mesh);
@@ -532,17 +532,10 @@ Filters.triSubdiv = function ( mesh, levels ) {
             var v6 = verts[2]
 
             // Join new vertices around a face
-            // BUG WHEN VERTICES ARE ALREADY CALCULATED
-            if (i != 9) {
-                var f1 = mesh.splitFaceMakeEdge(faces[i], v4, v5, v6, true)
-                //faces[i].halfedge = v4.halfedge.opposite
-                var f2 = mesh.splitFaceMakeEdge(f1, v4, v6, v5, true)
-                var f3 = mesh.splitFaceMakeEdge(f2, v5, v6, v4, true) 
-            } else {
-                //f1 = "hello"
-                //f1 = mesh.splitFaceMakeEdge(faces[i], v4, v5, v6, true)
-                //var f3 = mesh.splitFaceMakeEdge(f2, v4, v6, v5, true) 
-            }
+            var f1 = mesh.splitFaceMakeEdge(faces[i], v4, v6, v5, true)
+            var f2 = mesh.splitFaceMakeEdge(f1, v4, v5, v6, true)
+            var f3 = mesh.splitFaceMakeEdge(f2, v5, v6, v4, true) 
+
         }
         // ----------- Our reference solution uses 42 lines of code.
         // ----------- STUDENT CODE END ------------
@@ -575,10 +568,23 @@ Filters.quadSubdiv = function ( mesh, levels ) {
         // ----------- STUDENT CODE BEGIN ------------
         var n_faces = faces.length
 
+        // Copy initial mesh
+        var oldMesh = new Mesh();
+        oldMesh.copy(mesh);
+        var old_faces = oldMesh.getModifiableFaces();
+
+        var old_centroids = []
+        for ( var i = 0; i < n_faces; i++ ) {
+            old_centroids[i] = oldMesh.calculateFaceCentroid(old_faces[i])
+        }
+
+        var n_faces = faces.length
+
         // Create list of half edges
         var old_verts = [];
         var old_vert_nums = [];
         var midpoints = [];
+        var midpoint_nums = [];
         var i_vert = 0;
 
         for ( var i = 0; i < n_faces; i++ ) {
@@ -592,14 +598,21 @@ Filters.quadSubdiv = function ( mesh, levels ) {
         i_mid = 0; 
         for ( var i = 0; i < n_faces; i ++) {
             var verts = []
-            
-            for ( var j = 0; j < old_vert_nums[i]; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
+            var n_verts = old_vert_nums[i]
+            var old_i_mid = i_mid;
+            for ( var j = 0; j < n_verts; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
 
-            for ( var k = 0; k < old_vert_nums[i]; k++) {
-                var v1 = verts[ (k) % old_vert_nums[i] ]
-                var v2 = verts[ (k+1) % old_vert_nums[i] ]
-                midpoints[i_mid++] = mesh.splitEdgeMakeVert( v1, v2, 0.5); 
+            for ( var k = 0; k < n_verts; k++) {
+                var v1 = verts[ (k) % n_verts ]
+                var v2 = verts[ (k+1) % n_verts ]
+
+                var v3;
+                var he1 = mesh.edgeBetweenVertices( v1, v2 );
+                if (!he1) { } else { v3 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
+                if (!he1) { v3 = mesh.vertBetweenVertices (v1,v2) }
+                midpoints[i_mid++] = v3; 
             }
+            midpoint_nums[i] = i_vert - old_i_vert;
         }
 
         var i_old = 0
@@ -607,33 +620,30 @@ Filters.quadSubdiv = function ( mesh, levels ) {
         var centers = [];
 
         for ( var i = 0; i < n_faces; i ++) {
-            var verts = []
             
-            for ( var j = 0; j < old_vert_nums[i]; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
+            var verts = []
+            var n_verts = midpoint_nums[i]
+            
+            for ( var j = 0; j < n_verts; j++ ) { verts[j] = midpoints[i_old]; i_old += 1 }
 
             var v1 = verts[0]
             var v2 = verts[1]
             var v3 = verts[2]
-            var v5 = verts[3]
-            var v6 = verts[4]
             
-            var f  = mesh.splitFaceMakeEdge(faces[i], v1, v3, v2, true)
-            var v4 = mesh.splitEdgeMakeVert(v1, v3, 0.5); 
-            //var f2  = mesh.splitFaceMakeEdge(faces[i], v5, v4, v6, true)
+            var f  = mesh.splitFaceMakeEdge(faces[i], v1, v2, v3, true)
+            var v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5); 
             centers[i_center++] = v4;
 
-            // var v5 = verts[3]
-            // var v6 = verts[4]
-            // var f2  = mesh.splitFaceMakeEdge(f, v3, v6, v5, true)
-
-            for ( var k = old_vert_nums[i] - 1; k >= 3; k--) {
-                //k = old_vert_nums[i] - 1;
+            for ( var k = 2; k < n_verts; k++) {
                 var v_new = verts[k]
-                var v_other = verts[ (k+1) % old_vert_nums[i] ]
-                //console.log(k)
-                //console.log((k+1) % old_vert_nums[i])
-                f = mesh.splitFaceMakeEdge(faces[i], v_new, v4, v_other, true); 
+                var v_other = verts[ (k+1) % n_verts ]
+                f = mesh.splitFaceMakeEdge(f, v_new, v4, v_other, true); 
             }
+        }
+
+        for ( var i = 0; i < centers.length; i ++) {
+            centers[i].position = old_centroids[i]
+
         }
 
         // ----------- Our reference solution uses 53 lines of code.
