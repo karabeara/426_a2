@@ -379,63 +379,69 @@ Filters.extrude = function ( mesh, factor ) {
 
 Filters.truncate = function ( mesh, factor ) {
 
-    var verts = mesh.getModifiableVertices();
+  //  var verts = mesh.getModifiableVertices();
 
     // ----------- STUDENT CODE BEGIN ------------
-    // Need to add two new vertices, and a single new face
-    // Store respective 
-    var n_verts  = verts.length
-    //for (var i = 0; i < n_verts; i++) {
-    i = 0
-        var old_edges = mesh.edgesOnVertex(vert[i])
-        var new_verts = []
-        var new_edges = []
 
-        for (var j = 0; j < old_edges.length - 1; j++) {  // make new verts
-            new_verts[j] = mesh.splitEdgeMakeVert(verts[i], verts[i], 0);
-        }
-        var v1 = verts[i]
-        var v2 = mesh.addVertex(v1.position)
-        var v3 = mesh.addVertex(v1.position)
+	origMesh = new Mesh();
+	origMesh.copy(mesh);
+	var orig_verts = origMesh.getModifiableVertices();
+	var verts = mesh.getModifiableVertices();
+	var n_verts = verts.length;
+	for ( var i = 0 ; i < n_verts ; ++i ) {
 
-        var f = mesh.addFace()
-        console.log(v1)
-        console.log(v2)
-        console.log(v3)
-        console.log(f)
+		//make new verts
+		var otherVerts = mesh.verticesOnVertex(verts[i]);
+		var newVerts = []
+		for (var v_i = 0; v_i < otherVerts.length-1; ++v_i) {
+			newVerts[v_i] = mesh.splitEdgeMakeVert(verts[i], otherVerts[v_i], factor);
+		}
+			
+		//make new face
+		for (var v_i = 0; v_i < newVerts.length-1; v_i++) {
+			faces_a = mesh.facesOnVertex(newVerts[v_i]);
+			faces_b = mesh.facesOnVertex(newVerts[(v_i+1)%newVerts.length]);
+			var common_face = undefined;
+			for (var f_i = 0; f_i < faces_a.length; f_i++) {
+				for (var f_j = 0; f_j < faces_b.length; f_j++) {
+					if (faces_a[f_i] === faces_b[f_j])
+						common_face = faces_a[f_i];
+				}
+			}
+			mesh.splitFaceMakeEdge(common_face, newVerts[v_i], newVerts[(v_i+1)%newVerts.length]);
+			
+			if (v_i > 0) { //only make one new face
+				var edge = mesh.edgeBetweenVertices(newVerts[v_i], verts[i]);
+				mesh.joinFaceKillEdgeSimple(edge);
+			}
+		}
+		
 
-
-
-/*
-        // add (n-1) vertices per vertex
-        var edges = mesh.edgesOnVertex(v1)
-        for (var j = 0; j < edges.length; j++) {
-            var v2 = mesh.addVertex(v1.position)
-            verts[index++] = v2
-        }
-        // add 1 face per vertex
-        var f = mesh.addFace()
-        f.normal = v1.normal
-        f.halfedge = v1.halfedge
-*/
-    //}
-
-    // Move Vertices along halfedges
-    // Store respective offset vectors per vertex beforehand
-    /*
-    for (var i = 0; i < orig_vert_len; i++) {
-        
-        var v1 = verts[i]
-        // add (n-1) vertices per vertex
-        var edges = mesh.edgesOnVertex(v1)
-        for (var j = 0; j < edges.length; j++) {
-            var v2 = mesh.addVertex(v1.position)
-            verts[index++] = v2
-        }
-        // add 1 face per vertex
-        var f = mesh.addFace()
-    }
-    */
+		//move to correct spot base on origMesh
+		origOtherVerts = origMesh.verticesOnVertex(orig_verts[i]);
+		for (var v_i = 0; v_i < newVerts.length; v_i++) {
+			var new_pos = new THREE.Vector3( 0, 0, 0 );
+			var p1 = new THREE.Vector3( 0, 0 ,0 );
+			p1.copy( orig_verts[i].position );
+			var p2 = new THREE.Vector3( 0, 0 ,0 );
+			p2.copy( origOtherVerts[v_i].position );
+			new_pos.add( p1.multiplyScalar( 1 - factor ) );
+			new_pos.add( p2.multiplyScalar( factor ) );
+			newVerts[v_i].position = new_pos;
+		}
+		
+		
+		//move the last vertex
+		var new_pos = new THREE.Vector3( 0, 0, 0 );
+		var p1 = new THREE.Vector3( 0, 0 ,0 );
+		p1.copy( orig_verts[i].position );
+		var p2 = new THREE.Vector3( 0, 0 ,0 );
+		p2.copy( origOtherVerts[otherVerts.length-1].position );
+		new_pos.add( p1.multiplyScalar( 1 - factor ) );
+		new_pos.add( p2.multiplyScalar( factor ) );
+		verts[i].position = new_pos;
+		
+	}
     // ----------- Our reference solution uses 54 lines of code.
     // ----------- STUDENT CODE END ------------
     //Gui.alertOnce ('Truncate is not implemented yet');
