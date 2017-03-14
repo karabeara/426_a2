@@ -3,6 +3,37 @@ var Filters = Filters || {}
 //Space for your helper functions
 // ----------- STUDENT CODE BEGIN ------------
 // ----------- Our reference solution uses 50 lines of code.
+
+//from assignment 1 (Same partners)
+Filters.histogramEqualizationFilter = function( values ) {
+  // ----------- STUDENT CODE BEGIN ------------
+
+  var bins = new Array(256);
+  for (var i = 0; i < 256; i+=1) {
+    bins[i] = 0;
+  }
+  var minLum, imageSize;
+  for (var x = 0; x < values.length; x++) {
+      var luminance = Math.round(values[x]*255);
+      bins[luminance] = bins[luminance] + 1;
+  }
+
+  minLum = 0;
+  for (var i = 1; i < 256; i+=1) {
+    if (bins[i] != 0) { minLum = i; break; }
+  }
+
+  for (var i = 1; i < 256; i+=1) {
+    bins[i] = bins[i] + bins [i-1];
+  }
+
+  for (var x = 0; x < values.length; x += 1) {
+      var lum = Math.round(values[x]*255);
+      values[x] = (bins[lum] - bins[minLum]) / (values.length - 1);
+  }
+
+  return values;
+};
 // ----------- STUDENT CODE END ------------
 
 
@@ -85,8 +116,46 @@ Filters.scale = function( mesh, s ) {
 Filters.curvature = function ( mesh ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 82 lines of code.
+	var verts = mesh.getModifiableVertices();
+	var sumAngles = []
+	
+	for (var i = 0; i < verts.length; i++) {
+		other_verts = mesh.verticesOnVertex(verts[i]);
+		sumAngles[i] = 0;
+		for (var j = 0; j < other_verts.length; j++) {
+			var A = other_verts[j].position;
+			var B = verts[i].position;
+			var C = other_verts[(j+1)%other_verts.length].position;
+			var e1 = new THREE.Vector3(A.x - B.x, A.y - B.y, A.z - B.z);
+			e1.normalize();
+			var e2 = new THREE.Vector3(C.x - B.x, C.y - B.y, C.z - B.z);
+			e2.normalize();
+			var angle = Math.acos(e1.dot(e2));
+			sumAngles[i] += angle;
+		}
+		sumAngles[i] = 2*3.14159 - sumAngles[i];
+	}
+	
+	var minSum = sumAngles[0];
+	var maxSum = sumAngles[0];
+	for (var i = 0; i < verts.length; i++) {
+		if (sumAngles[i] > maxSum) maxSum = sumAngles[i];
+		if (sumAngles[i] < minSum) minSum = sumAngles[i];
+	}
+	
+	var curvs = []
+	for (var i = 0; i < verts.length; i++) {
+		verts[i].curvature = sumAngles[i];
+		curvs[i] = (sumAngles[i]-minSum)/(maxSum-minSum);
+	}
+	curvs = Filters.histogramEqualizationFilter(curvs);
+	for (var i = 0; i < verts.length; i++) {
+		verts[i].color = new THREE.Vector3(curvs[i], curvs[i], curvs[i]);
+	}
+	
+	
+	
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Curvature is not implemented yet');
 }
 
 Filters.noise = function ( mesh, factor ) {
