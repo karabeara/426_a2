@@ -109,6 +109,27 @@ Mesh.prototype.facesOnVertex = function ( v ) {
     return faces;
 };
 
+Mesh.prototype.facesOnVertices = function ( v1, v2 ) {
+
+    var faces_returned = [ undefined, undefined ];
+    var faces_1 = this.facesOnVertex(v1)
+    var faces_2 = this.facesOnVertex(v2)
+    var index_1 = 0;
+    var index_2 = 0;
+    var index_r = 0
+    var f1 = faces_1[0]
+    var f2 = faces_2[0]
+    while ( true ) {
+        if (f1 === f2) { faces_returned[index_r] = f1; index_r += 1 }
+        f1 = faces_1[index_1]
+        f2 = faces_2[index_2]
+        index_1 += 1
+        if (index_1 > faces_1.length ) { index_1 = 0; index_2 += 1; } 
+        if (index_2 > faces_2.length ) break;
+    }
+    return faces_returned;
+};
+
 Mesh.prototype.verticesOnEdge = function ( e ) {
     var vertices = []
 

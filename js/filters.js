@@ -623,9 +623,184 @@ Filters.loop = function ( mesh, levels ) {
     for ( var l = 0 ; l < levels ; l++ ) {
         var faces = mesh.getModifiableFaces();
         // ----------- STUDENT CODE BEGIN ------------
-        // ----------- Our reference solution uses 116 lines of code.
+        var n_faces = faces.length
+        
+        // Copy initial mesh
+        var oldMesh = new Mesh();
+        oldMesh.copy(mesh);
+
+        // Create list of half edges
+        var old_verts = [];
+        var i_vert = 0;
+
+        for ( var i = 0; i < n_faces; i++ ) {
+            var vertices = mesh.verticesOnFace( faces[i] )
+            for ( var j = 0; j < 3; ++j ) { old_verts[i_vert] = vertices[j]; i_vert += 1; }
+        }
+
+        var i_old = 0
+        var i_new = 0
+        var new_verts = [];
+
+        for ( var i = 0; i < n_faces; i ++) {
+            var verts = []
+            
+            for ( var j = 0; j < 3; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
+
+            var v1 = verts[0]
+            var v2 = verts[1]
+            var v3 = verts[2]
+
+            // Split halfedges in half as well as their opposites
+            // Still a bug in determining the already calculated vertex!!!!!!!
+            var v4, v5, v6;
+            var he1 = mesh.edgeBetweenVertices( v1, v2 );
+            if (!he1) { } else { v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
+            var he2 = mesh.edgeBetweenVertices( v1, v3 );
+            if (!he2) { } else { v5 = mesh.splitEdgeMakeVert(v1, v3, 0.5) }
+            var he3 = mesh.edgeBetweenVertices( v2, v3 );
+            if (!he3) { } else { v6 = mesh.splitEdgeMakeVert(v2, v3, 0.5) }
+
+            if (!he1) { v4 = mesh.vertBetweenVertices (v1,v2) } 
+            if (!he2) { v5 = mesh.vertBetweenVertices (v1,v3) } 
+            if (!he3) { v6 = mesh.vertBetweenVertices (v2,v3) } 
+
+            new_verts[i_new++] = v4;
+            new_verts[i_new++] = v5;
+            new_verts[i_new++] = v6;   
+        }
+
+        var i_old = 0
+        var i_new = 0
+        var old_vert_weights_x = [];
+        var old_vert_weights_y = [];
+        var old_vert_weights_z = [];
+        var new_vert_weights_x = [];
+        var new_vert_weights_y = [];
+        var new_vert_weights_z = [];
+
+        // Calculate weights for even (old, original) vertices
+        for ( var i = 0; i < old_verts.length; i ++) {
+            var totalX = 0, totalY = 0, totalZ = 0, beta = 3./16
+            var neighbors = mesh.verticesOnVertex( old_verts[i] )
+
+            if (old_verts.length > 3) { beta = 3 / (8 * old_verts.length) }
+            else                      { beta = 3 / 16 }
+
+            for ( var j = 0; j < neighbors.length; j ++) {
+                totalX += beta * neighbors[j].position.x
+                totalY += beta * neighbors[j].position.y
+                totalZ += beta * neighbors[j].position.z
+            }
+            var selfX = ( 1 - (old_verts.length * beta) ) * old_verts[i].position.x
+            var selfY = ( 1 - (old_verts.length * beta) ) * old_verts[i].position.y
+            var selfZ = ( 1 - (old_verts.length * beta) ) * old_verts[i].position.z
+            
+            old_vert_weights_x[i] = totalX + selfX
+            old_vert_weights_y[i] = totalY + selfX
+            old_vert_weights_z[i] = totalZ + selfX
+
+            // console.log(old_vert_weights_x[i])
+            // console.log(old_vert_weights_y[i])
+            // console.log(old_vert_weights_z[i])
+        }
+
+        // Calculate weights for odd (new) vertices
+        for ( var i = 0; i < new_verts.length; i++) {
+            var totalX = 0, totalY = 0, totalZ = 0
+            var neighbors = mesh.verticesOnVertex( new_verts[i] )
+            console.log(neighbors)
+            direct_beta = 3 / 8
+            indirect_beta = 1 /8
+
+            for ( var j = 0; j < 2; j++) {
+                totalX += direct_beta * neighbors[j].position.x
+                totalY += direct_beta * neighbors[j].position.y
+                totalZ += direct_beta * neighbors[j].position.z
+            }
+ 
+            var opp1, opp2
+            var twoFaces = []
+            twoFaces = mesh.facesOnVertices(v1, v2)
+            var face1 = twoFaces[0]
+            var face2 = twoFaces[1]
+            console.log(face1)
+            console.log(face2)
+
+            var verts_1 = mesh.verticesOnFace(face1)
+            var index_1 = 0
+            while ( true ) {
+                if (verts_1[index_1] !== neighbors[0] && verts_1[index_1] !== neighbors[1]) { opp1 = verts_1[index_1]; }
+                index_1 += 1
+                if (index_1 > verts_1.length - 1) break;
+            }
+
+            var verts_2 = oldMesh.verticesOnFace(face2)
+            var index_2 = 0
+            while ( true ) {
+                if (verts_2[index_2] !== neighbors[0] && verts_2[index_2] !== neighbors[1]) { opp2 = verts_2[index_2]; }
+                index_2 += 1
+                if (index_2 > verts_2.length - 1) break;
+            }
+
+            var otherX = indirect_beta * opp1.position.x + indirect_beta * opp2.position.x
+            var otherY = indirect_beta * opp1.position.y + indirect_beta * opp2.position.y
+            var otherZ = indirect_beta * opp1.position.z + indirect_beta * opp2.position.z
+           
+            new_vert_weights_x[i] = totalX + otherX
+            new_vert_weights_y[i] = totalY + otherY
+            new_vert_weights_z[i] = totalZ + otherZ
+
+            console.log(new_vert_weights_x[i])
+            console.log(new_vert_weights_y[i])
+            console.log(new_vert_weights_z[i])
+        }
+
+        var v_i = 0;
+
+        for ( var i = 0; i < n_faces; i ++) {
+            var verts = []
+            
+            for ( var j = 0; j < 3; j++ ) { verts[j] = new_verts[v_i]; v_i += 1 }
+
+            var v4 = verts[0]
+            var v5 = verts[1]
+            var v6 = verts[2]
+
+            // Join new vertices around a face
+            var f1 = mesh.splitFaceMakeEdge(faces[i], v4, v6, v5, true)
+            var f2 = mesh.splitFaceMakeEdge(f1, v4, v5, v6, true)
+            var f3 = mesh.splitFaceMakeEdge(f2, v5, v6, v4, true) 
+
+        }
+
+
+        // Reset positions for even (old, original) vertices according to precomputed weights
+        for ( var i = 0; i < old_verts.length; i ++) {
+            var x_ = old_vert_weights_x[i]
+            var y_ = old_vert_weights_y[i]
+            var z_ = old_vert_weights_z[i]
+            var average = (x_ + y_ + z_) / 3
+            t = old_verts[i].normal.multiplyScalar(average);
+            old_verts[i].position.add(t);
+            //var new_pos = new THREE.Vector3( x_, y_, z_ );
+            //old_verts[i].position = new_pos;
+        }
+
+        // Reset positions for odd (new) vertices according to precomputed weights
+        for ( var i = 0; i < new_verts.length; i ++) {
+            var x_ = new_vert_weights_x[i]
+            var y_ = new_vert_weights_y[i]
+            var z_ = new_vert_weights_z[i]
+            var average = (x_ + y_ + z_) / 3
+            t = new_verts[i].normal.multiplyScalar(average);
+            new_verts[i].position.add(t);
+            // var new_pos = new THREE.Vector3( x_, y_, z_ );
+            // new_verts[i].position = new_pos;
+        }
+        //----------- Our reference solution uses 116 lines of code.
         // ----------- STUDENT CODE END ------------
-        Gui.alertOnce ('Triangle subdivide is not implemented yet');
+        //Gui.alertOnce ('Loop subdivide is not implemented yet');
     }
 
     mesh.calculateFacesArea();
