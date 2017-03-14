@@ -218,8 +218,27 @@ Filters.wacky = function ( mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 13 lines of code.
+	var verts = mesh.getModifiableVertices();
+	var n_vertices = verts.length;
+	
+	var max_height = verts[0].position.y;
+	var min_height = verts[0].position.y;
+	for ( var i = 0 ; i < n_vertices ; ++i ) {
+		if (verts[i].position.y > max_height) {
+			max_height = verts[i].position.y;
+		}
+		if (verts[i].position.y < min_height) {
+			min_height = verts[i].position.y;
+		}
+	}
+	var h = max_height - min_height;
+    for ( var i = 0 ; i < n_vertices ; ++i ) {
+		var avg_len = mesh.averageEdgeLength(verts[i]);
+		var temp = new THREE.Vector3(h/2*Math.sin((verts[i].position.y/h)*3.14159/factor), 0, 0)
+	//	var temp = new THREE.Vector3(Math.sin(verts[i].position.y/h), 0, 0)
+        verts[i].position.add(temp);
+    }
     // ----------- STUDENT CODE END ------------
-    Gui.alertOnce ('Wacky is not implemented yet');
 
     mesh.calculateFacesArea();
     mesh.updateNormals();
