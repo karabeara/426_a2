@@ -164,9 +164,13 @@ Filters.noise = function ( mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 40 lines of code.
+	var origMesh = new Mesh();
+	origMesh.copy(mesh);
+	var origVerts = origMesh.getModifiableVertices();
+	
 	var n_vertices = verts.length;
     for ( var i = 0 ; i < n_vertices ; ++i ) {
-		var avg_len = mesh.averageEdgeLength(verts[i]);
+		var avg_len = origMesh.averageEdgeLength(origVerts[i]);
 		t = verts[i].normal.multiplyScalar(Math.random()*factor*avg_len);
         verts[i].position.add(t);
     }
@@ -245,10 +249,14 @@ Filters.inflate = function (  mesh, factor ) {
 
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 16 lines of code.
+	var origMesh = new Mesh();
+	origMesh.copy(mesh);
+	var origVerts = origMesh.getModifiableVertices();
+	
 	var n_vertices = verts.length;
     for ( var i = 0 ; i < n_vertices ; ++i ) {
-		var avg_len = mesh.averageEdgeLength(verts[i]);
-		var temp = new THREE.Vector3(verts[i].normal.x, verts[i].normal.y, verts[i].normal.z)
+		var avg_len = origMesh.averageEdgeLength(origVerts[i]);
+		var temp = new THREE.Vector3(origVerts[i].normal.x, origVerts[i].normal.y, origVerts[i].normal.z)
 		temp.multiplyScalar(factor*avg_len);
         verts[i].position.add(temp);
     }
@@ -288,6 +296,10 @@ Filters.wacky = function ( mesh, factor ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 13 lines of code.
 	var verts = mesh.getModifiableVertices();
+	var origMesh = new Mesh();
+	origMesh.copy(mesh);
+	var origVerts = origMesh.getModifiableVertices();
+	
 	var n_vertices = verts.length;
 	
 	var max_height = verts[0].position.y;
@@ -302,7 +314,7 @@ Filters.wacky = function ( mesh, factor ) {
 	}
 	var h = max_height - min_height;
     for ( var i = 0 ; i < n_vertices ; ++i ) {
-		var avg_len = mesh.averageEdgeLength(verts[i]);
+		var avg_len = origMesh.averageEdgeLength(origVerts[i]);
 		var temp = new THREE.Vector3(h/2*Math.sin((verts[i].position.y/h)*3.14159/factor), 0, 0)
 	//	var temp = new THREE.Vector3(Math.sin(verts[i].position.y/h), 0, 0)
         verts[i].position.add(temp);
@@ -553,6 +565,9 @@ Filters.bevel = function ( mesh, factor ) {
 
 Filters.splitLong = function ( mesh, factor  ) {
 
+
+    // ----------- STUDENT CODE BEGIN ------------
+    // ----------- Our reference solution uses 35 lines of code.
 	var init_faces = mesh.getModifiableFaces();
 	var init_edges = [];
 	for (var f_i = 0; f_i < init_faces.length; f_i++) {
@@ -562,11 +577,8 @@ Filters.splitLong = function ( mesh, factor  ) {
 				init_edges.push(f_edges[e_i]);
 		}
 	}
-
-
-    // ----------- STUDENT CODE BEGIN ------------
-    // ----------- Our reference solution uses 35 lines of code.
-	for (var iter = 0; iter < (factor*init_edges.length); iter++) {
+	
+	for (var iter = 0; iter < factor*init_edges.length; iter++) {
 		var faces = mesh.getModifiableFaces();
 		var edges = [];
 		for (var f_i = 0; f_i < faces.length; f_i++) {
@@ -576,6 +588,7 @@ Filters.splitLong = function ( mesh, factor  ) {
 					edges.push(f_edges[e_i]);
 			}
 		}
+
 		
 		var longDist = 0;
 		var longEdge = undefined;
@@ -583,11 +596,13 @@ Filters.splitLong = function ( mesh, factor  ) {
 			var v1 = edges[e_i].vertex;
 			var v2 = edges[e_i].opposite.vertex;
 			var d = mesh.dist(v1.position, v2.position);
+			console.log(d);
 			if (d > longDist) {
 				longDist = d;
 				longEdge = edges[e_i];
 			}
 		}
+		console.log(longDist);
 		
 		var vs = mesh.verticesOnFace(longEdge.face);
 		var count = 0;
