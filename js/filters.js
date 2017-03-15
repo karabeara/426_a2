@@ -596,13 +596,11 @@ Filters.splitLong = function ( mesh, factor  ) {
 			var v1 = edges[e_i].vertex;
 			var v2 = edges[e_i].opposite.vertex;
 			var d = mesh.dist(v1.position, v2.position);
-			console.log(d);
 			if (d > longDist) {
 				longDist = d;
 				longEdge = edges[e_i];
 			}
 		}
-		console.log(longDist);
 		
 		var vs = mesh.verticesOnFace(longEdge.face);
 		var count = 0;
