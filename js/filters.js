@@ -989,8 +989,144 @@ Filters.catmullClark = function ( mesh, levels ) {
         var faces = mesh.faces;
         // ----------- STUDENT CODE BEGIN ------------
         // ----------- Our reference solution uses 101 lines of code.
+		var n_faces = faces.length
+
+        // Copy initial mesh
+        var oldMesh = new Mesh();
+        oldMesh.copy(mesh);
+        var old_faces = oldMesh.getModifiableFaces();
+
+        var old_centroids = []
+        for ( var i = 0; i < n_faces; i++ ) {
+            old_centroids[i] = oldMesh.calculateFaceCentroid(old_faces[i])
+        }
+
+		
+        var n_faces = faces.length
+
+        // Create list of half edges
+        var old_verts = [];
+        var old_vert_nums = [];
+        var midpoints = [];
+        var midpoint_nums = [];
+        var i_vert = 0;
+
+        for ( var i = 0; i < n_faces; i++ ) {
+            var old_i_vert = i_vert;
+            var vertices = mesh.verticesOnFace( faces[i] )
+            for ( var j = 0; j < vertices.length; ++j ) { old_verts[i_vert] = vertices[j]; i_vert += 1; }
+            old_vert_nums[i] = i_vert - old_i_vert;
+        }
+		
+		///////////////////////////////
+		var fs = []
+		for (var i = 0; i < old_verts.length; i++) {
+			var v_faces = oldMesh.facesOnVertex(old_verts[i]);
+			var cent_sum = new THREE.Vector3(0,0,0);
+			for (var j = 0; j < v_faces.length; j++) {
+				cent_sum.add(oldMesh.calculateFaceCentroid(v_faces[j]));
+			}
+			cent_sum.divideScalar(v_faces.length);
+			fs[i] = cent_sum;
+		}
+		
+		var rs = []
+		var ns = []
+		for (var i = 0; i < old_verts.length; i++) {
+			var v_edges = oldMesh.edgesOnVertex(old_verts[i]);
+			var mid_sum = new THREE.Vector3(0,0,0);
+			for (var j = 0; j < v_edges.length; j++) {
+				var new_pos = new THREE.Vector3( 0, 0, 0 );
+				var p1 = new THREE.Vector3( 0, 0 ,0 );
+				p1.copy( v_edges[j].vertex.position );
+				var p2 = new THREE.Vector3( 0, 0 ,0 );
+				p2.copy( v_edges[j].opposite.vertex.position );
+				new_pos.add( p1.multiplyScalar( 1 - 0.5 ) );
+				new_pos.add( p2.multiplyScalar( 0.5 ) );
+				
+				mid_sum.add(new_pos);
+			}
+			mid_sum.divideScalar(v_edges.length);
+			rs[i] = mid_sum;
+			ns[i] = v_edges.length;
+		}
+		
+		var ps = []
+		for ( var i = 0; i < old_verts.length; i ++) {
+			ps[i] = new THREE.Vector3(0,0,0);
+			ps[i].copy(old_verts[i].position);
+		}
+		//////////////////////////////
+
+        var i_old = 0
+        i_mid = 0; 
+        for ( var i = 0; i < n_faces; i ++) {
+            var verts = []
+            var n_verts = old_vert_nums[i]
+            var old_i_mid = i_mid;
+            for ( var j = 0; j < n_verts; j++ ) { verts[j] = old_verts[i_old]; i_old += 1 }
+
+            for ( var k = 0; k < n_verts; k++) {
+                var v1 = verts[ (k) % n_verts ]
+                var v2 = verts[ (k+1) % n_verts ]
+                var v3 = verts[ (k+2) % n_verts ]
+
+                var v3;
+                var he1 = mesh.edgeBetweenVertices( v1, v2 );
+                if (!he1) { } else { v3 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
+                if (!he1) { v3 = mesh.vertBetweenVertices_T (v1,v2,v3); }
+                midpoints[i_mid++] = v3; 
+            }
+            midpoint_nums[i] = i_vert - old_i_vert;
+        }
+
+        var i_old = 0
+        var i_center = 0
+        var centers = [];
+
+        for ( var i = 0; i < n_faces; i ++) {
+            
+            var verts = []
+            var n_verts = midpoint_nums[i]
+            
+            for ( var j = 0; j < n_verts; j++ ) { verts[j] = midpoints[i_old]; i_old += 1 }
+
+            var v1 = verts[0]
+            var v2 = verts[1]
+            var v3 = verts[2]
+
+            var f  = mesh.splitFaceMakeEdge(faces[i], v1, v2, v3, true)
+            var v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5); 
+            centers[i_center++] = v4;
+
+            for ( var k = 2; k < n_verts; k++) {
+                var v_new = verts[k]
+                var v_other = verts[ (k+1) % n_verts ]
+                f = mesh.splitFaceMakeEdge(f, v_new, v4, v_other, true); 
+            }
+        }
+
+        for ( var i = 0; i < centers.length; i ++) {
+            centers[i].position = old_centroids[i]
+        }
+		
+		/////////////////////////////////////////////
+		for ( var i = 0; i < old_verts.length; i ++) {
+			fs[i].add( rs[i].multiplyScalar(2) ).add( ps[i].multiplyScalar(ns[i]-3) ).divideScalar(ns[i]);
+            old_verts[i].position = fs[i];
+        }
+		
+		for ( var i = 0; i < midpoints.length; i ++) {
+			var m_verts = mesh.verticesOnVertex(midpoints[i]);
+			var loc_sum = new THREE.Vector3(0,0,0);
+			for (var j = 0; j < m_verts.length; j++) {
+				loc_sum.add(m_verts[j].position);
+			}
+			midpoints[i].position = loc_sum.divideScalar(m_verts.length);
+		//	console.log(old_verts[i].position.x + " " + old_verts[i].position.y + " " + old_verts[i].position.z)
+        }
+		////////////////////////////////////////////////
         // ----------- STUDENT CODE END ------------
-        Gui.alertOnce ('Catmull-Clark subdivide is not implemented yet');
     }
 
     mesh.calculateFacesArea();
