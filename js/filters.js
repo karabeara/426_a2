@@ -1111,10 +1111,6 @@ Filters.catmullClark = function ( mesh, levels ) {
         }
 		
 		/////////////////////////////////////////////
-		for ( var i = 0; i < old_verts.length; i ++) {
-			fs[i].add( rs[i].multiplyScalar(2) ).add( ps[i].multiplyScalar(ns[i]-3) ).divideScalar(ns[i]);
-            old_verts[i].position = fs[i];
-        }
 		
 		for ( var i = 0; i < midpoints.length; i ++) {
 			var m_verts = mesh.verticesOnVertex(midpoints[i]);
@@ -1124,6 +1120,11 @@ Filters.catmullClark = function ( mesh, levels ) {
 			}
 			midpoints[i].position = loc_sum.divideScalar(m_verts.length);
 		//	console.log(old_verts[i].position.x + " " + old_verts[i].position.y + " " + old_verts[i].position.z)
+        }
+		
+		for ( var i = 0; i < old_verts.length; i ++) {
+			(fs[i].add( rs[i].multiplyScalar(2) ).add( ps[i].multiplyScalar(ns[i]-3) )).divideScalar(ns[i]);
+            old_verts[i].position = fs[i];
         }
 		////////////////////////////////////////////////
         // ----------- STUDENT CODE END ------------
