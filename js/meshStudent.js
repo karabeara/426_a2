@@ -171,6 +171,25 @@ Mesh.prototype.vertBetweenVertices = function ( v1, v2 ) {
     return v3;
 };
 
+Mesh.prototype.vertBetweenVertices_T = function ( v1, v2, v5 ) {
+    var v3 = undefined;
+    var vertices_1 = this.verticesOnVertex(v1)
+    var vertices_2 = this.verticesOnVertex(v2)
+    var index_1 = 0;
+    var index_2 = 0;
+    var vv1 = vertices_1[0]
+    var vv2 = vertices_2[0]
+    while ( true ) {
+        if (vv1 === vv2 && vv1 !== v5) { v3 = vv1; }
+        vv1 = vertices_1[index_1]
+        vv2 = vertices_2[index_2]
+        index_1 += 1
+        if (index_1 > vertices_1.length ) { index_1 = 0; index_2 += 1; } 
+        if (index_2 > vertices_2.length ) break;
+    }
+    return v3;
+};
+
 Mesh.prototype.edgeBetweenVertices = function ( v1, v2 ) {
     var out_he = undefined;
     // ----------- STUDENT CODE BEGIN ------------

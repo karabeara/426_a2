@@ -933,11 +933,12 @@ Filters.quadSubdiv = function ( mesh, levels ) {
             for ( var k = 0; k < n_verts; k++) {
                 var v1 = verts[ (k) % n_verts ]
                 var v2 = verts[ (k+1) % n_verts ]
+                var v3 = verts[ (k+2) % n_verts ]
 
                 var v3;
                 var he1 = mesh.edgeBetweenVertices( v1, v2 );
                 if (!he1) { } else { v3 = mesh.splitEdgeMakeVert(v1, v2, 0.5) }
-                if (!he1) { v3 = mesh.vertBetweenVertices (v1,v2) }
+                if (!he1) { v3 = mesh.vertBetweenVertices_T (v1,v2,v3); }
                 midpoints[i_mid++] = v3; 
             }
             midpoint_nums[i] = i_vert - old_i_vert;
@@ -957,7 +958,7 @@ Filters.quadSubdiv = function ( mesh, levels ) {
             var v1 = verts[0]
             var v2 = verts[1]
             var v3 = verts[2]
-            
+
             var f  = mesh.splitFaceMakeEdge(faces[i], v1, v2, v3, true)
             var v4 = mesh.splitEdgeMakeVert(v1, v2, 0.5); 
             centers[i_center++] = v4;
@@ -971,7 +972,6 @@ Filters.quadSubdiv = function ( mesh, levels ) {
 
         for ( var i = 0; i < centers.length; i ++) {
             centers[i].position = old_centroids[i]
-
         }
 
         // ----------- Our reference solution uses 53 lines of code.
